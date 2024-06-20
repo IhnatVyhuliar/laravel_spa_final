@@ -7,7 +7,7 @@ services:
     volumes:
       - ./src/frontend:/var/www/html
     labels:
-      - "traefik.http.routers.site.rule=Host(`andrewber.localhost`)"
+      - "traefik.http.routers.site.rule=Host(`user.localhost`)"
       - "traefik.http.services.site.loadbalancer.server.port=8081"
     depends_on:
       - traefik
@@ -34,7 +34,7 @@ services:
     volumes:
       - ./src/backend:/var/www/html
     labels:
-      - "traefik.http.routers.api.rule=(Host(`andrewber.localhost`) && PathPrefix(`/api`))"
+      - "traefik.http.routers.api.rule=(Host(`user.localhost`) && PathPrefix(`/api`))"
       - "traefik.http.services.api.loadbalancer.server.port=8082"
     depends_on:
       - traefik

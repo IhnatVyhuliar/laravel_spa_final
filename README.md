@@ -19,6 +19,16 @@
 </ul>
 
 
+<h2>Main setups</h2>
+<ul>
+  <li>You need to setup your db name, user and password in .env</li>
+  <li>For email verification you need to setup: app password, your email, mail server, port</li>
+
+</ul>
+
+
+
+
 <p> Main features: </p>
 <p> It's mostly rest api based application for adding and watching some posts</p>
 
@@ -31,6 +41,6 @@
     <li>There is a file validation for unclosed tags and valid html, without any <strong> forbidden tags </strong></li>
     <li>The whole images and txt files are validating in request, where there are only indicated formats are proceeding without, 
     for images - <strong> PNG, GIF, JPG, </strong>
-
-
 </ul>
+
+
