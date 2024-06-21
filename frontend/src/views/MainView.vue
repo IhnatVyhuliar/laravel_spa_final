@@ -8,12 +8,12 @@ import { useRouter } from "vue-router";
 
 const comments = ref([])
 const reply_comment = ref([])
-
+let offset = 0
 
 const router = useRouter()
-const getComments = () => {
+const getComments = (offset) => {
     //alert(credentials.phone.replaceAll(' ', '').replace('(', '').replace(')', '').replace('-', ''));
-    axios.get('http://127.0.0.1:8000/api/v1/comments', {
+    axios.get('http://127.0.0.1:8000/api/v1/comments/'+offset, {
         headers:{
         Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -23,6 +23,7 @@ const getComments = () => {
         comments.value = response.data
         
        console.log(comments);
+      
     })
     .catch((error)=> {
         localStorage.removeItem('token');
@@ -34,6 +35,23 @@ const getComments = () => {
 
 }
 
+const renderNextComments = () =>{
+    offset+= 25
+    getComments(offset)
+}
+
+const renderPreviousComments = () =>{
+    if (offset < 25)
+    {
+        return
+    }
+    offset-= 25
+    console.log(offset)
+    getComments(offset)
+}
+
+
+
 // const addComment = function(event) { // a regular event object is passed by $event in template
 //     // console.log(event.target.parentElement) // parent element
     
@@ -41,7 +59,7 @@ const getComments = () => {
 // }
 
 onMounted(() => {
-    getComments()
+    getComments(0)
     if (localStorage.getItem('token')) {
         router.push({
             name: 'main'
@@ -158,8 +176,8 @@ onMounted(() => {
                         <div class="w-12 h-12 ml-2 rounded-full  bg-black"></div>
                         <div class="name text-xl font-bold">
 
-                            {{ reply_comment.comment.user.name}}
-                           
+                            <!-- {{ reply_comment.comment.user.name}} -->
+                           {{ reply_comment.comment[0].user.name  }}
                         </div>
                         <div class="time text-l font-normal" v-if="reply_comment.comment.created_at">
                             {{  reply_comment.comment.created_at.substring(0, 10)}} в {{reply_comment.comment.created_at.substring(11, 19)}}
@@ -241,7 +259,7 @@ onMounted(() => {
 
                 </div>
                 <div class="mt-3">
-                    <div v-html="reply_comment.comment.comment_text"></div>
+                    <div v-html="reply_comment.comment[0].comment_text"></div>
                 </div>
                 
                 </div>
@@ -249,9 +267,14 @@ onMounted(() => {
             
         </div>
         <div class="flex text-right">
-            <button class="h-9 rounded-md w-14 bg-black text-white ">
-            next
-        </button>
+           
+        </div>
+
+        <div class="flex gap-4 text-right">
+            <button @click="renderPreviousComments" class="p-2 rounded-md bg-black text-white"> previous </button>
+            <button @click="renderNextComments" class="p-2 rounded-md w-14 bg-black text-white ">
+                next
+            </button>
         </div>
         
     </div>

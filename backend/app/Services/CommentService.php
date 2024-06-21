@@ -72,7 +72,7 @@
 
                 for ($j = 0; $j < count($data[$i]['reply_comments']); $j++){
                     // echo $data[$i]['reply_comments'][$j]['comment_reply_id'];
-                    $data[$i]['reply_comments'][$j]['comment'] = Comment::where('id', '=', $data[$i]['reply_comments'][$j]['comment_reply_id'])->with('user')->get();
+                    $data[$i]['reply_comments'][$j]['comment'] = Comment::where('id', '=', $data[$i]['reply_comments'][$j]['comment_reply_id'])->with('user:id,name,email')->get();
                     $this->loadAdditionalData($data[$i]['reply_comments'][$j]['comment']);
                     // echo json_encode(Comment::where('id', '=', $data[$i]['reply_comments'][$j]['comment_reply_id'])->get());
                 } 
