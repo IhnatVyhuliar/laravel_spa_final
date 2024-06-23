@@ -5,8 +5,16 @@
 import { computed,  onMounted, reactive, ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
+import VueRecaptcha from 'vue-recaptcha-v3';
+const siteKey = ref('yourSiteAPIKey');
 
+const handleSuccess = (response) => {
+  // Handle successful reCAPTCHA verification
+};
 
+const handleError = (error) => {
+  // Handle reCAPTCHA error
+};
 
 const comments = ref([])
 
@@ -40,6 +48,13 @@ let offset = 0
 let reverse = ref(true)
 let email_field = ref(null)
 let name_field = ref(null)
+
+let reactive_data_form = reactive({
+    name:  null,
+    email: null,
+    text_comment: null
+})
+
 
 const router = useRouter()
 const getComments = (offset = 0 ) => {
@@ -182,6 +197,14 @@ const onChangeName = (event, offset = 0) => {
     getSortedNames(name, offset)
 }
 
+// const addComment = (event) =>{
+//     console.log(event.currentTarget.id)
+// } 
+
+const handleAddReply = () => {
+    getCommentsFromLink(base_url+api_endpoints.add, reactive_data_form)
+}
+
 onMounted(() => {
     getComments(0)
 
@@ -196,7 +219,24 @@ onMounted(() => {
 
 <template>
     <div class="w-full p-6  mx-auto">
-        <div class="container flex flex-auto gap-5">
+        <div >
+            <form action="#" class="container flex flex-col gap-4 min-h-20 block p-4 border-solid border-4 border-black" method="post" @submit.prevent="handleAddReply">
+                <input type="text"  name="name"  v-model="reactive_data_form.name" class=" p-4 border-solid border-4 w-full border-gray-400" placeholder="User name" required>
+                <input type="email"  name="email" v-model="reactive_data_form.email" class=" p-4 border-solid border-4 w-full border-gray-400" placeholder="example@gmail.com" required>
+                <textarea   class=" p-4 border-solid border-4 w-full border-gray-400" v-model="reactive_data_form.text_comment" placeholder="home page"></textarea>
+                <VueRecaptcha
+                :sitekey="siteKey"
+                :load-recaptcha-script="true"
+                @verify="handleSuccess"
+                @error="handleError"></VueRecaptcha>
+                <div  class="bg-gray-50 text-right sm: px-6">
+                    <button type="submit" @submit.prevent="handleAddReply" class="inline-flex justify-center rounded-md border border-transparent
+                    bg-black p-4 text-white">Send</button>
+                </div>
+            </form>
+            
+        </div>
+        <div class="container flex flex-auto gap-5 mt-4">
             <div>
                 <button @click="reverseDate" class="p-4 bg-black rounded-md text-white" >
                 Sort by date
@@ -216,7 +256,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="container flex flex-col overflow-hidden">
-            <div v-for="comment in comments" :key="comment.id"   v-if="comments.length >0" class="container min-h-20 p-3 block">
+            <div v-for="comment in comments" :key="comment.id" @click='addComment' v-if="comments.length >0" class="container min-h-20 p-3 block">
                 <div class="w-full rounded-md h-16 bg-gray-200 overflow-hidden">
                     <div class="flex justify-start gap-5 place-items-center">
                     
@@ -233,7 +273,7 @@ onMounted(() => {
                             
                             {{  comment.created_at.substring(0, 10)}} в {{comment.created_at.substring(11, 19)}}
                         </div>
-                        <div @click='addComment'>
+                        <div >
                             <div  class="favorite text-l font-extrabold not-italic text-xl">
                             <svg width="30" height="30" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg"
                                 xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -313,7 +353,7 @@ onMounted(() => {
                     <div v-html="comment.comment_text"></div>
                 </div>
                 
-                <div v-for="reply_comment in comment.reply_comments" :key="reply_comment.id"   v-if="comment.reply_comments.length >0" class="container ml-5 min-h-20 p-3 block">
+                <div v-for="reply_comment in comment.reply_comments" :name="reply_comment.id"    v-if="comment.reply_comments.length >0" class="container ml-5 min-h-20 p-3 block">
                 <div class="w-full rounded-md h-16 bg-gray-200 overflow-hidden">
                     <div class="flex justify-start gap-5 place-items-center">
                         <div class="w-12 h-12 ml-2 rounded-full  bg-black"></div>
