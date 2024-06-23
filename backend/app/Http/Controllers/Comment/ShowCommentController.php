@@ -79,11 +79,12 @@ class ShowCommentController extends Controller
        return app(CommentService::class)->sortByName($request->name);
     }
 
+    
     public function offset(string $offset): object
     {
         // return 'index';
-        if (!empty($offset)&& is_numeric($offset)&& $offset>=0){
-            $offset_in = intval($offset);
+        if (NumberHelper::checkIsNumber($offset)){
+            $offset_in = NumberHelper::convertToNumber($offset);
             
             return app(CommentService::class)->getDefaultComments(false, $offset_in);
         }
