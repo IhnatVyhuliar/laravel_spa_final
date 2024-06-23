@@ -15,6 +15,7 @@
         {
             $sortparam = "DESC";
             if ($reverse){
+                // echo "bu";
                 $sortparam = "ASC";
             }
             $data = Comment::leftJoin('reply_comments', 'reply_comments.comment_reply_id', '=', 'comments.id')
@@ -31,17 +32,17 @@
             return $data;
         }
     
-        public function sortByEmail(string $email)
+        public function sortByEmail(string $email, bool $reverse = false, int $offset = 0)
         {
-            $data = $this->getComments()->where('users.email', "=", $email)->get();
+            $data = $this->getComments($reverse, $offset)->where('users.email', "=", $email)->get();
             $this->loadAdditionalData($data);
             return $data;
             //->file('');
         }
 
-        public function sortByName(string $name)
+        public function sortByName(string $name, bool $reverse = false, int $offset = 0)
         {
-            $data = $this->getComments()->where('users.name', "=", $name)->get();
+            $data = $this->getComments($reverse, $offset)->where('users.name', "=", $name)->get();
             $this->loadAdditionalData($data);
             return $data;
         }

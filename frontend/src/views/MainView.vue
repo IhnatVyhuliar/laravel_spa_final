@@ -8,7 +8,9 @@ import { useRouter } from "vue-router";
 
 const comments = ref([])
 const reply_comment = ref([])
+
 let offset = 0
+let reverse = true
 
 const router = useRouter()
 const getComments = (offset) => {
@@ -50,6 +52,27 @@ const renderPreviousComments = () =>{
     getComments(offset)
 }
 
+const reverseDate = () =>{
+    // /comments/reverse
+    axios.get('http://127.0.0.1:8000/api/v1/comments/reverse', {
+        headers:{
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then((response) => {
+        // console.log(response.data)
+        comments.value = response.data
+        
+       console.log(comments);
+      
+    })
+    .catch((error)=> {
+        localStorage.removeItem('token');
+        router.push({
+        name: 'login'
+        })
+    })
+}
 
 
 // const addComment = function(event) { // a regular event object is passed by $event in template
@@ -71,7 +94,11 @@ onMounted(() => {
 
 <template>
     <div class="w-full p-6  mx-auto">
-        
+        <div class="container flex">
+            <button @click="reverseDate" class="p-4 bg-black rounded-md text-white" >
+                Sort by date
+            </button>
+        </div>
         <div class="container flex flex-col overflow-hidden">
             <div v-for="comment in comments" :key="comment.id"   v-if="comments.length >0" class="container min-h-20 p-3 block">
                 <div class="w-full rounded-md h-16 bg-gray-200 overflow-hidden">
