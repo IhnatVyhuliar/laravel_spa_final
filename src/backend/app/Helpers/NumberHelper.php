@@ -6,7 +6,7 @@
     {
         public static function checkIsNumber(string $string_to_check): bool
         {
-            return !empty($string_to_check)&& is_numeric($string_to_check);
+            return is_numeric($string_to_check);
         }
 
         public static function convertToNumber(string $string_number): int|false

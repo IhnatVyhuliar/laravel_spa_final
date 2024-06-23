@@ -34,12 +34,12 @@ Route::name('v1.')->prefix('v1')->group(function () {
         Route::get('/comments/email', [ShowCommentController::class, 'sortByEmail']);
         Route::get('/comments/email/offset/{offset}', [ShowCommentController::class, 'offsetSortByEmail']);
         Route::get('/comments/email/reverse', [ShowCommentController::class, 'sortByEmailReverse']);
-        Route::get('/comments/email/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByEmailReverseOffset']);
+        Route::post('/comments/email/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByEmailReverseOffset']);
 
         Route::get('/comments/name', [ShowCommentController::class, 'sortByName']);
         Route::get('/comments/name/offset/{offset}', [ShowCommentController::class, 'offsetsortByName']);
         Route::get('/comments/name/reverse', [ShowCommentController::class, 'sortByNameReverse']);
-        Route::get('/comments/name/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByNameReverseOffset']);
+        Route::post('/comments/name/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByNameReverseOffset']);
 
         Route::post('/comment/add', [StoreCommentController::class, 'store'])->middleware("XSS");
 

@@ -1,45 +1,114 @@
 <script setup>
 
 // const items = ref([{ message: 'Foo' }, { message: 'Bar' }])
-import { vMaska } from "maska/vue";
-import { computed, createBlock, onMounted, reactive, ref } from "vue";
+
+import { computed,  onMounted, reactive, ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
+
+
 const comments = ref([])
-const reply_comment = ref([])
+
+const base_url = "http://127.0.0.1:8000/api/v1"
+const api_endpoints = {
+    index : '/comments/',
+
+    sort: {
+        reverse: '/comments/reverse',
+        offset: '/comments/offset/',
+        revrseOffset: '/comments/reverse/offset/',
+
+        email:{
+            sortByEmail: '/comments/email',
+            sortByEmailReverse: '/comments/email/reverse',
+            sortByEmailOffset: '/comments/email/offset/',
+            sortByEmailReverseOffset: '/comments/email/reverse/offset/',
+        },
+        name:{
+            sortByName: '/comments/name',
+            sortByNameReverse: '/comments/name/reverse',
+            sortByNameOffset: '/comments/name/offset/',
+            sortByNameReverseOffset: '/comments/name/reverse/offset/',
+        }
+        
+    },
+    add: '/comment/add'
+}
 
 let offset = 0
-let reverse = true
+let reverse = ref(true)
+let email_field = ref(null)
+let name_field = ref(null)
 
 const router = useRouter()
-const getComments = (offset) => {
-    //alert(credentials.phone.replaceAll(' ', '').replace('(', '').replace(')', '').replace('-', ''));
-    axios.get('http://127.0.0.1:8000/api/v1/comments/'+offset, {
-        headers:{
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-    .then((response) => {
-        // console.log(response.data)
-        comments.value = response.data
-        
-       console.log(comments);
-      
-    })
-    .catch((error)=> {
-        localStorage.removeItem('token');
-        router.push({
-        name: 'login'
-        })
-    })
-    
+const getComments = (offset = 0 ) => {
+    let url = base_url
 
+    if (email_field.value.value != ""&& checkEmail(email_field.value.value)){
+
+        getSortedEmails(email_field.value, offset)
+        return
+    }
+    else if (reverse.value){
+        url+= api_endpoints.sort.revrseOffset+offset
+        
+    }
+    else{
+        url+= api_endpoints.sort.offset+offset
+    }
+
+    getCommentsFromLink(url)
+}
+
+const getCommentsFromLink = (link, data_validated = null) => {
+    if (data_validated)
+    {
+        axios.post(link, 
+            data_validated,
+            {headers:{
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }}
+            
+        )
+        .then((response) => {
+            // console.log(response.data)
+            comments.value = response.data
+            
+        
+        })
+        .catch((error)=> {
+            // localStorage.removeItem('token');
+            router.push({
+            name: 'login'
+            })
+        })
+    }else{
+        
+        axios.get(link, {
+            headers:{
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+        })
+        .then((response) => {
+            // console.log(response.data)
+            comments.value = response.data
+            
+        
+        })
+        .catch((error)=> {
+            // localStorage.removeItem('token');
+            router.push({
+            name: 'login'
+            })
+        })
+    }
 }
 
 const renderNextComments = () =>{
     offset+= 25
     getComments(offset)
+    // console.log(offset)
 }
 
 const renderPreviousComments = () =>{
@@ -53,36 +122,69 @@ const renderPreviousComments = () =>{
 }
 
 const reverseDate = () =>{
-    // /comments/reverse
-    axios.get('http://127.0.0.1:8000/api/v1/comments/reverse', {
-        headers:{
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-    .then((response) => {
-        // console.log(response.data)
-        comments.value = response.data
-        
-       console.log(comments);
-      
-    })
-    .catch((error)=> {
-        localStorage.removeItem('token');
-        router.push({
-        name: 'login'
-        })
-    })
+
+    reverse.value = !reverse.value
+
+    getComments(offset)
+
 }
 
 
-// const addComment = function(event) { // a regular event object is passed by $event in template
-//     // console.log(event.target.parentElement) // parent element
+const onChangeEmail= (event, offset = 0) => {
+    const email = event.target.value;
+    if (checkEmail(email)) {
+        getSortedEmails(email, offset)
+    }
+    getComments(offset)
+}
+
+const getSortedEmails = (email, offset) =>{
+    if (checkEmail(email)) {
+        let url =  base_url
+        if (reverse.value)
+        {
+            url+=api_endpoints.sort.email.sortByEmailReverseOffset+offset
+        }else{
+            url+= base_url+api_endpoints.sort.email.sortByEmailOffset+offset
+        }
+
+        let data_with_email ={
+            email: email
+        }
+        getCommentsFromLink(url,  data_with_email)
+
+    }
     
-//     alert(event.target.parentElement)
-// }
+}
+
+const getSortedNames = (name, offset) =>{
+    let url =  base_url
+    if (reverse.value)
+    {
+        url+=api_endpoints.sort.name.sortByNameReverseOffset+offset
+    }else{
+        url+= base_url+api_endpoints.sort.name.sortByNameOffset+offset
+    }
+    alert(url)
+    let data_with_email ={
+        name: name
+    }
+    getCommentsFromLink(url,  data_with_email)
+}
+
+const checkEmail = (email) => {
+    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+}
+
+const onChangeName = (event, offset = 0) => {
+    const name = event.target.value;
+    //alert(event.target.value)
+    getSortedNames(name, offset)
+}
 
 onMounted(() => {
     getComments(0)
+
     if (localStorage.getItem('token')) {
         router.push({
             name: 'main'
@@ -94,10 +196,24 @@ onMounted(() => {
 
 <template>
     <div class="w-full p-6  mx-auto">
-        <div class="container flex">
-            <button @click="reverseDate" class="p-4 bg-black rounded-md text-white" >
+        <div class="container flex flex-auto gap-5">
+            <div>
+                <button @click="reverseDate" class="p-4 bg-black rounded-md text-white" >
                 Sort by date
+                <span v-if="reverse" class="material-symbols-outlined text-white" >
+                    keyboard_arrow_down
+                </span>
+                <span v-else class="material-symbols-outlined text-white" >
+                    keyboard_arrow_up
+                </span>
             </button>
+            </div>
+            <div>
+                <input type="email" ref="email_field"  @change="onChangeEmail($event)" name="email"  class=" p-4 border-solid border-4 border-black" placeholder="example@gmail.com">
+            </div>
+            <div>
+                <input type="text" ref="name_field"  @change="onChangeName($event)" name="name"  class=" p-4 border-solid border-4 border-black" placeholder="Mark">
+            </div>
         </div>
         <div class="container flex flex-col overflow-hidden">
             <div v-for="comment in comments" :key="comment.id"   v-if="comments.length >0" class="container min-h-20 p-3 block">
@@ -297,7 +413,7 @@ onMounted(() => {
            
         </div>
 
-        <div class="flex gap-4 text-right">
+        <div class="flex gap-4 text-right mt-3">
             <button @click="renderPreviousComments" class="p-2 rounded-md bg-black text-white"> previous </button>
             <button @click="renderNextComments" class="p-2 rounded-md w-14 bg-black text-white ">
                 next

@@ -8,6 +8,8 @@ use App\Services\CommentService;
 use App\Http\Requests\SubmitEmailRequest;
 use App\Rules\StringValidationRule;
 use App\Helpers\NumberHelper;
+use Illuminate\Support\Facades\Redis;
+
 class ShowCommentController extends Controller
 {
     /* 
@@ -66,29 +68,83 @@ class ShowCommentController extends Controller
         return $this->sortByEmailWithParams($request->email, 0, true);
     }
 
-    private function sortByEmailWithParams(string $email, int $offset = 0, bool $reverse = false): object
+    private function sortByEmailWithParams(string $email,  bool $reverse = false, int $offset = 0): object
     {   
-        return app(CommentService::class)->sortByEmail($email, $offset, $reverse);
+        
+        return app(CommentService::class)->sortByEmail($email, $reverse, $offset);
     }
+
+    /* 
+    
+        Sort by name
+
+    */
 
     public function sortByName(Request $request): object
     {   
         $request->validate([
             'name' => ['required', 'string', new StringValidationRule],
         ]);
-       return app(CommentService::class)->sortByName($request->name);
+       return $this->sortByNameWithParams(ucfirst(htmlspecialchars($request->name)));
+    }
+
+    public function offsetSortByName(Request $request, string $offset): object
+    {   
+        $request->validate([
+            'name' => ['required', 'string', new StringValidationRule],
+        ]);
+        
+        if (NumberHelper::checkIsNumber($offset))
+        {
+            $offset_in = NumberHelper::convertToNumber($offset);
+            
+            return $this->sortByNameWithParams(ucfirst(htmlspecialchars($request->name)), $offset_in);
+        }
+
+        
     }
 
     
-    public function offset(string $offset): object
+    public function sortByNameReverse(Request $request): object
+    {  
+        
+        $request->validate([
+            'name' => ['required', 'string', new StringValidationRule],
+        ]);
+        
+        return $this->sortByNameWithParams(ucfirst(htmlspecialchars($request->name)), 0, true);
+    }
+
+    public function sortByNameReverseOffset(Request $request, string $offset):object
+    {
+        $request->validate([
+            'name' => ['required', 'string', new StringValidationRule],
+        ]);
+        if (NumberHelper::checkIsNumber($offset))
+        {
+            $offset_in = NumberHelper::convertToNumber($offset);
+            return $this->sortByNameWithParams(ucfirst(htmlspecialchars($request->name)), $offset_in, true);
+        }
+
+        
+    }
+
+    private function sortByNameWithParams(string $name, int $offset = 0, bool $reverse = false): object
+    {   
+        
+        return app(CommentService::class)->sortByName(ucfirst(htmlspecialchars($name)), $offset, $reverse);
+    }
+
+    public function offset(string $offset)
     {
         // return 'index';
+
         if (NumberHelper::checkIsNumber($offset)){
             $offset_in = NumberHelper::convertToNumber($offset);
             
             return app(CommentService::class)->getDefaultComments(false, $offset_in);
         }
-
+        abort(404);
         
     }
 
