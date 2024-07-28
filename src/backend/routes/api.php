@@ -28,18 +28,18 @@ Route::name('v1.')->prefix('v1')->group(function () {
         });
         Route::get('/comments', [ShowCommentController::class, 'sortByDate']);
         Route::get('/comments/offset/{offset}', [ShowCommentController::class, 'offset']);
-        Route::get('/comments/reverse', [ShowCommentController::class, 'sortByDateReverse']);
-        Route::get('/comments/reverse/offset/{ofsset}', [ShowCommentController::class, 'offsetReverse']);
+        Route::get('/comments/reverse', [ShowCommentController::class, 'sortByDateReversed']);
+        Route::get('/comments/reverse/offset/{ofsset}', [ShowCommentController::class, 'offsetReversed']);
 
         Route::get('/comments/email', [ShowCommentController::class, 'sortByEmail']);
-        Route::get('/comments/email/offset/{offset}', [ShowCommentController::class, 'offsetSortByEmail']);
-        Route::get('/comments/email/reverse', [ShowCommentController::class, 'sortByEmailReverse']);
-        Route::post('/comments/email/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByEmailReverseOffset']);
+        Route::get('/comments/email/offset/{offset}', [ShowCommentController::class, 'sortByEmailOffset']);
+        Route::get('/comments/email/reverse', [ShowCommentController::class, 'sortByEmailReversed']);
+        Route::post('/comments/email/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByEmailReversedOffset']);
 
         Route::get('/comments/name', [ShowCommentController::class, 'sortByName']);
-        Route::get('/comments/name/offset/{offset}', [ShowCommentController::class, 'offsetsortByName']);
-        Route::get('/comments/name/reverse', [ShowCommentController::class, 'sortByNameReverse']);
-        Route::post('/comments/name/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByNameReverseOffset']);
+        Route::get('/comments/name/offset/{offset}', [ShowCommentController::class, 'sortByNameOffset']);
+        Route::get('/comments/name/reverse', [ShowCommentController::class, 'sortByNameReversed']);
+        Route::post('/comments/name/reverse/offset/{ofsset}', [ShowCommentController::class, 'sortByNameReversedOffset']);
 
         Route::post('/comment/add', [StoreCommentController::class, 'store'])->middleware("XSS");
 

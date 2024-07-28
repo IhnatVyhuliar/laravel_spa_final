@@ -34,12 +34,7 @@ router.beforeEach((to, from)=>{
 })
 
 const checkTokenAuthenticity = () => {
-  if (!localStorage.getItem('token'))
-  {
-    router.push({
-      name: 'login'
-    })
-  }
+
   axios.get('http://127.0.0.1:8000/api/v1/user', {
     headers:{
       Authorization: `Bearer ${localStorage.getItem('token')}`

@@ -3,40 +3,19 @@
 namespace App\Http\Controllers\Comment;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Comment\StoreReplyToCommentController;
 use Illuminate\Http\Request;
 use App\Models\Comment;
-use App\Models\ReplyComment;
 use App\Http\Requests\StoreCommentRequest;
-use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
-use App\Services\TagClosedService;
 use App\Models\SavedComment;
-use Illuminate\Support\Facades\Storage;
+use App\Services\FileService;
 
 class StoreCommentController extends Controller
 {
     public function store(StoreCommentRequest $request): object
-    {
-
-        $photo_file = null;
-        if($request->has('photo_file')){
-            $photo_file=$request->file('photo_file')->store('public/comments/photo');
-        }
-        $txt_file = null;
-        if($request->has('txt_file')){
-            $fileContent = file_get_contents(storage_path($request->file('txt_file')));
-
-            if ($this->checkTags($fileContent))
-            {
-                if (app(TagClosedService::class)->checkString()){
-                    $txt_file = $request->file('txt_file')->store('public/comments/txt');
-                }
-                else{
-                    abort(403);
-                }
-            }
-            
-            
-        }
+    {   
+        $photo_file = app(FileService::class)->storePhotoFileFromRequest($request);
+        $txt_file = app(FileService::class)->storeTXTFileFromRequest($request);
         
         $comment = Comment::create([
             'comment_text'=>$request->comment_text,
@@ -47,19 +26,15 @@ class StoreCommentController extends Controller
         ]);
 
         if ($request->has('reply_id')){
-            $comment = Comment::findOrFail($request->reply_id);
-            if ($comment){
-                ReplyComment::create([
-                    'user_id' => $request->user()->id,
-                    'comment_id' => $request->reply_id,
-                    'comment_reply_id' => $comment->id
-                ]);
-            }
+            StoreReplyToCommentController::storeReply($request->reply_id, $comment->id, $request->user()->id);
         }
         return $comment;
     }
 
-    public function addToSaved(Comment $comment, Request $request)
+    
+
+
+    public function addToSaved(Comment $comment, Request $request): SavedComment
     {   
         $saved = SavedComment::create([
             'user_id' => $request->user()->id,
@@ -69,23 +44,12 @@ class StoreCommentController extends Controller
         return $saved;
     }
 
-    public function deleteMessage(Comment $comment, Request $request)
+    public function deleteMessage(Comment $comment, Request $request): void
     {
         if($comment->user_id === $request->user()->id){
-            Storage::delete($comment->photo_file);
-            Storage::delete($comment->txt_file);
-
+            app(FileService::class)->deleteFile($comment->photo_file);
+            app(FileService::class)->deleteFile($comment->txt_file);
             $comment->delete();
         }
-    }
-
-    private function  checkTags(string $string): bool 
-    {
-        // Remove allowed tags from the string
-        $allowedTags = ['<a>', '<i>', '<code>', '<strong>'];
-        $filteredString = strip_tags($string, implode('', $allowedTags));
-    
-        // Compare the filtered string with the original
-        return $filteredString !== $string;
-    }
+    }   
 }

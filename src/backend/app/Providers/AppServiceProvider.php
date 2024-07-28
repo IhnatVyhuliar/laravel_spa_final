@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\CommentService;
+use App\Services\GetCommentSWithRepliesService;
 use App\Services\TagClosedService;
+use App\Services\FileService;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -12,13 +13,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CommentService::class, function() {
-            return new CommentService(25);
+        $this->app->bind(GetCommentSWithRepliesService::class, function() {
+            return new GetCommentSWithRepliesService(25);
         });
-        $this->app->bind(TagClosedService::class, function() {
-            return new TagClosedService;
+        $this->app->bind(TagClosedCheckService::class, function() {
+            return new TagClosedCheckService;
         });
-        
+        $this->app->bind(FileService::class, function() {
+            return new FileService;
+        });
     }
 
     /**
