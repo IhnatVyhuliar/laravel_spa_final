@@ -95,7 +95,7 @@ const getCommentsFromLink = (link, data_validated = null) => {
         .catch((error)=> {
             // localStorage.removeItem('token');
             router.push({
-            name: 'login'
+                name: 'login'
             })
         })
     }else{
@@ -207,8 +207,9 @@ const handleAddReply = () => {
 
 onMounted(() => {
     getComments(0)
-
+ 
     if (localStorage.getItem('token')) {
+        // alert("main");
         router.push({
             name: 'main'
         })

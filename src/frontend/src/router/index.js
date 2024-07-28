@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import axios from "axios";
 import LoginView from '../views/LoginView.vue'
 import MainView from '../views/MainView.vue'
 
@@ -18,8 +18,29 @@ const router = createRouter({
     }
   ]
 })
+
+router.beforeEach((to, from)=>{
+  if (to.name == "login"){
+    return true
+  }
+  if(!localStorage.getItem('token')){
+    return {
+      name: 'login'
+    }
+  }
+
+  checkTokenAuthenticity()
+
+})
+
 const checkTokenAuthenticity = () => {
-  axios.get('http://127.0.0.1:8000/api/user', {
+  if (!localStorage.getItem('token'))
+  {
+    router.push({
+      name: 'login'
+    })
+  }
+  axios.get('http://127.0.0.1:8000/api/v1/user', {
     headers:{
       Authorization: `Bearer ${localStorage.getItem('token')}`
     }

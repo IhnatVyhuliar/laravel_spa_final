@@ -11,7 +11,7 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(VueReCaptcha, {
-    siteKey: '6LcRuf8pAAAAAGVPHtJ98ealBmvxiQTQzx2XCStP',
+    siteKey: '',
     loaderOptions: {
     useRecaptchaNet: true,
   },
