@@ -31,10 +31,7 @@ class StoreCommentController extends Controller
         return $comment;
     }
 
-    
-
-
-    public function addToSaved(Comment $comment, Request $request): SavedComment
+    public function addCommentToSaved(Comment $comment, Request $request): SavedComment
     {   
         $saved = SavedComment::create([
             'user_id' => $request->user()->id,

@@ -26,7 +26,7 @@ class FileService
 
     public function storeFilePhoto(string $photo_file_path): null|string
     {
-        Storage:put($photo_file_path, 'public/comments/photo');
+        Storage::put($photo_file_path, 'public/comments/photo');
         return $photo_file_path;
     }
 
@@ -37,7 +37,7 @@ class FileService
         if (app(TagClosedCheckService::class)->checkTags($fileContent))
         {
             if (app(TagClosedCheckService::class)->checkString($fileContent)){
-                Storage:put($txt_file_path, 'public/comments/txt');
+                Storage::put($txt_file_path, 'public/comments/txt');
                 $txt_file = $txt_file_path;
             }
             else{
@@ -59,5 +59,4 @@ class FileService
         }
     }
 
-    
 }

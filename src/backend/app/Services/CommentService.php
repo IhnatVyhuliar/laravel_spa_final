@@ -39,8 +39,6 @@
             ->select('comments.*')
             ->limit($this->limit)
             ->orderBy("comments.created_at", $sortparam)
-            // ->with('replyComments.comment:id,home_page,comment_text,txt_file,photo_file,user_id,created_at')
-            // ->with('replyComments.user:*')
             ->with('user:id,name,email');
 
             return $unsortedCommentsBuilder;

@@ -16,8 +16,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GetCommentSWithRepliesService::class, function() {
             return new GetCommentSWithRepliesService(25);
         });
-        $this->app->bind(TagClosedCheckService::class, function() {
-            return new TagClosedCheckService;
+        $this->app->bind(TagClosedValidationService::class, function() {
+            return new TagClosedValidationService;
         });
         $this->app->bind(FileService::class, function() {
             return new FileService;

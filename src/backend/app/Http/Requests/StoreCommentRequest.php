@@ -27,7 +27,7 @@ class StoreCommentRequest extends FormRequest
             'comment_text' => 'required|string',
             'home_page' => 'nullable|string|max:255',
             'txt_file' => 'nullable|image|mimes:txt|100',
-            'photo_file' =>'nullable|image|mimes:jpg,gif,png|dimensions:max_width=320,max_height=240',
+            'photo_file' =>'nullable|image|mimes:jpg,gif,png',
             'reply_id' => 'nullable|numeric'
         ];
     }

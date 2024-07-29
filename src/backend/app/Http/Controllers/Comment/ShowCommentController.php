@@ -12,54 +12,42 @@ use App\Helpers\NumberHelper;
 
 class ShowCommentController extends Controller
 {
-    /* 
-    
-        Normal sort with dates 
-        
-    */
-    public function sortByDate(): object
+ 
+    public function sortCommentsByDate(): object
     {
        return app(GetCommentSWithRepliesService::class)->getDefaultComments();        
     }
 
-    public function sortByDateReversed(): object
+    public function sortCommentsByDateReversed(): object
     {   
         return app(GetCommentSWithRepliesService::class)->getDefaultCommentsReversed();  
     }
 
-
-    public function offset(string $offset)
+    public function sortCommentsOffset(string $offset)
     {
         if (NumberHelper::checkIsNumber($offset)){
             $offset_in = NumberHelper::convertToNumber($offset);
-            
             return app(GetCommentSWithRepliesService::class)->getDefaultComments($offset_in);
         }
         return app(GetCommentSWithRepliesService::class)->getDefaultComments();
     }
 
-    public function offsetReversed(string $offset): object
+    public function sortCommentsReversedOffset(string $offset): object
     {
         if (NumberHelper::checkIsNumber($offset)){
             $offset_in = intval($offset);
-            
             return app(GetCommentSWithRepliesService::class)->getDefaultCommentsReversed($offset_in);
         }
         return app(GetCommentSWithRepliesService::class)->getDefaultCommentsReversed();
     }
 
-    /* 
-
-        Sort by email
-    
-    */
-    public function sortByEmail(SubmitEmailRequest $request): object
+    public function sortCommentsByEmail(SubmitEmailRequest $request): object
     {   
-        return app(GetCommentSWithRepliesService::class)->sortByEmail($request->email);
+        return app(GetCommentSWithRepliesService::class)->sortCommentsByEmail($request->email);
     }
 
     
-    public function sortByEmailOffset(SubmitEmailRequest $request, string $offset): object
+    public function sortCommentsByEmailOffset(SubmitEmailRequest $request, string $offset): object
     {   
         if (NumberHelper::checkIsNumber($offset))
         {
@@ -69,56 +57,51 @@ class ShowCommentController extends Controller
 
         return app(GetCommentSWithRepliesService::class)->sortCommentsByEmail($request->email);
     }
-
-
     
-    public function sortByEmailReversed(SubmitEmailRequest $request): object
+    public function sortCommentsByEmailReversed(SubmitEmailRequest $request): object
     {  
+
         return app(GetCommentSWithRepliesService::class)->sortCommentsByEmailReversed($request->email);
     }
 
-    public function sortByEmailReversedOffset(SubmitEmailRequest $request, string $offset):object
+    public function sortCommentsByEmailReversedOffset(SubmitEmailRequest $request, string $offset):object
     {
         if (NumberHelper::checkIsNumber($offset))
         {
             $offset_in = NumberHelper::convertToNumber($offset);
-            return $this->sortCommentsByEmailReversed($request->email, $offset_in);
+            return app(GetCommentSWithRepliesService::class)->sortCommentsByEmailReversed($request->email, $offset_in);
         }
-
         return app(GetCommentSWithRepliesService::class)->sortCommentsByEmailReversed($request->email);
     }
 
-    public function sortByName(NameValidationRequest $request): object
+    public function sortCommentsByName(NameValidationRequest $request): object
     {  
        return app(GetCommentSWithRepliesService::class)->sortCommentsByName(ucfirst(htmlspecialchars($request->name)));
     }
 
-    public function sortByNameOffset(NameValidationRequest $request, string $offset): object
+    public function sortCommentsByNameOffset(NameValidationRequest $request, string $offset): object
     {   
         if (NumberHelper::checkIsNumber($offset))
         {
             $offset_in = NumberHelper::convertToNumber($offset);
-            
             return app(GetCommentSWithRepliesService::class)->sortCommentsByName(ucfirst(htmlspecialchars($request->name)), $offset_in);
         }
-
         return app(GetCommentSWithRepliesService::class)->sortCommentsByName($request->name);
     }
 
     
-    public function sortByNameReversed(NameValidationRequest $request): object
+    public function sortCommentsByNameReversed(NameValidationRequest $request): object
     {  
         return app(GetCommentSWithRepliesService::class)->sortCommentsByNameReversed(ucfirst(htmlspecialchars($request->name)));
     }
 
-    public function sortByNameReversedOffset(NameValidationRequest $request, string $offset):object
+    public function sortCommentsByNameReversedOffset(NameValidationRequest $request, string $offset):object
     {
         if (NumberHelper::checkIsNumber($offset))
         {
             $offset_in = NumberHelper::convertToNumber($offset);
-            return app(GetCommentSWithRepliesService::class)->sortCommentsByName(ucfirst(htmlspecialchars($request->name), $offset_in));
+            return app(GetCommentSWithRepliesService::class)->sortCommentsByName(ucfirst(htmlspecialchars($request->name)), $offset_in);
         }
-
         return app(GetCommentSWithRepliesService::class)->sortCommentsByName(ucfirst(htmlspecialchars($request->name)));
     }
     

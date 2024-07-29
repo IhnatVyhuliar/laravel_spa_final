@@ -6,6 +6,8 @@ use App\Services\CommentService;
 use App\Models\ReplyComment;
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Services\LoadFileUsingLinkService;
+
 class GetCommentSWithRepliesService extends CommentService
 {
     public function __construct(
@@ -39,14 +41,14 @@ class GetCommentSWithRepliesService extends CommentService
     public function sortCommentsByName(string $name, int $offset = 0)
     {
         $sortedByNameComments = $this->getComments($offset)->where('users.name', "=", $name)->get();
-        $this->loadAdditionalRepliesToComments($data);
+        $this->loadAdditionalRepliesToComments($sortedByNameComments);
         return $sortedByNameComments;
     }
 
     public function sortCommentsByNameReversed(string $name, int $offset = 0)
     {
         $sortedByNameComments = $this->getReversedComments($offset)->where('users.name', "=", $name)->get();
-        $this->loadAdditionalRepliesToComments($data);
+        $this->loadAdditionalRepliesToComments($sortedByNameComments);
         return $sortedByNameComments;
     }
 
@@ -65,38 +67,24 @@ class GetCommentSWithRepliesService extends CommentService
     }
 
 
-    public function loadAdditionalRepliesToComments(&$data): void
+    public function loadAdditionalRepliesToComments(&$orignalComment): void
     {
-        for ($i = 0; $i < count($data); $i++){            
-            $data[$i]['reply_comments'] = ReplyComment::where('comment_id', '=', $data[$i]['id'])->get();
-            if (isset($data[$i]['photo_file']))
+        for ($i = 0; $i < count($orignalComment); $i++){            
+            $orignalComment[$i]['reply_comments'] = ReplyComment::where('comment_id', '=', $orignalComment[$i]['id'])->get();
+            if (isset($orignalComment[$i]['photo_file']))
             {       
-                $data[$i]['photo_file'] = $this->loadImage($data[$i]['photo_file']);
+                $orignalComment[$i]['photo_file'] = LoadFileUsingLinkService::GetImageLink($orignalComment[$i]['photo_file']);
             }
-            if (isset($data['txt_file']))
+            if (isset($orignalComment['txt_file']))
             {
-                $data[$i]['photo_file'] = $this->loadImage($data[$i]['txt_file']);
+                $orignalComment[$i]['photo_file'] = LoadFileUsingLinkService::GetTXTLink($orignalComment[$i]['txt_file']);
             }
 
-            for ($j = 0; $j < count($data[$i]['reply_comments']); $j++){
-                // echo $data[$i]['reply_comments'][$j]['comment_reply_id'];
-                $data[$i]['reply_comments'][$j]['comment'] = Comment::where('id', '=', $data[$i]['reply_comments'][$j]['comment_reply_id'])->with('user:id,name,email')->get();
-                $this->loadAdditionalRepliesToComments($data[$i]['reply_comments'][$j]['comment']);
-                // echo json_encode(Comment::where('id', '=', $data[$i]['reply_comments'][$j]['comment_reply_id'])->get());
+            for ($j = 0; $j < count($orignalComment[$i]['reply_comments']); $j++){
+                $orignalComment[$i]['reply_comments'][$j]['comment'] = Comment::where('id', '=', $orignalComment[$i]['reply_comments'][$j]['comment_reply_id'])->with('user:id,name,email')->get();
+                $this->loadAdditionalRepliesToComments($orignalComment[$i]['reply_comments'][$j]['comment']);
             } 
         }
-
-
-    }
-
-    public function loadImage(string $image_path): string
-    {
-        return url("/comments/photo/".$image_path);
-    }
-
-    public function loadText(string $text_file_path): string
-    {
-        return url("/comments/txt/".$text_file_path);
     }
 
 }
