@@ -4,19 +4,28 @@ namespace App\Http\Controllers\Comment;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Comment\StoreReplyToCommentController;
+use App\Http\Controllers\User\UserController;
+
 use Illuminate\Http\Request;
-use App\Models\Comment;
 use App\Http\Requests\StoreCommentRequest;
+
+use App\Models\Comment;
 use App\Models\SavedComment;
+
 use App\Services\FileService;
 
 class StoreCommentController extends Controller
 {
-    public function store(StoreCommentRequest $request): object
+    public function storeCommentInDB(StoreCommentRequest $request): object
     {   
+        $request->validated();
         $photo_file = app(FileService::class)->storePhotoFileFromRequest($request);
         $txt_file = app(FileService::class)->storeTXTFileFromRequest($request);
         
+        if ($request->has("name"))
+        {
+            UserController::changeUserName($request->user(), $request->name);
+        }
         $comment = Comment::create([
             'comment_text'=>$request->comment_text,
             'home_page'=>$request->home_page,
